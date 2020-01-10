@@ -1,4 +1,4 @@
-# RNA-Seq differential expression work flow
+# RNA-seq differential expression work flow
 
 ## Introduction
 
