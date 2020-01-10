@@ -14,8 +14,8 @@ What we get from the sequencing machine is a set of FASTQ files that contain the
 
 Example:
 If the average per base read quality is bad at the 3' end.
- 
-[Quality sample after trimming] (https://github.com/kashiff007/RNA-seq-downstream-analysis/blob/master/fastqc_sample1.png)
+
+![untitled presentation](https://github.com/kashiff007/RNA-seq-downstream-analysis/blob/master/fastqc_sample1.png)
 
 we can trim 5 bases from 3' end by following command:
 ```
