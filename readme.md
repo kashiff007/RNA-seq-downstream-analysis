@@ -38,7 +38,7 @@ Note: Change the command parameters according to desired output.
 
 
 ## Aligning reads to a reference
-After quality control reads were align to a reference genome. Here reference genome was [TAIR10](https://www.arabidopsis.org/download/index-auto.jsp%3Fdir%3D%252Fdownload_files%252FGenes%252FTAIR10_genome_release). It is important to know if the sequencing experiment was single-end or paired-end, as the alignment software will require the user to specify both FASTQ files for a paired-end experiment. In our case we had paired-end fastq files. The output of this alignment step is commonly stored in a file format called BAM.
+After quality control reads were align to a reference genome. Here reference genome was [TAIR10](https://www.arabidopsis.org/download/index-auto.jsp%3Fdir%3D%252Fdownload_files%252FGenes%252FTAIR10_genome_release). It is important to know if the sequencing experiment was single-end or paired-end, as the alignment software will require the user to specify both FASTQ files for a paired-end experiment. In our case we had single-end fastq files. The output of this alignment step is commonly stored in a file format called BAM.
 
 Here we used the TopHat2 alignment software for the alignment of reads on TAIR10 genome with the reference of TAIR10 gff file. GFF/GTF files are annotation files which directs the mapping to the gene location and further helps in estimation of fragment numbers for each gene.
 
@@ -88,9 +88,11 @@ Above read table were uploaded into R and select the matrix only for read-number
 CountTable <- as.data.frame(round(as.matrix(read.csv("replicate.read_counts", sep="\t", header=TRUE, row.names=4))))
 CountTable <- CountTable[:c(6:)]
 ```
+In the table two replicates of each CA20, CA50, CE20, CE50, TA20, TA50, TE20 and TA50 are present.
 
+### Assigning the columns for respective samples replicate
+Then we assign each column to each sample:
 
-### Asssining the columns for respective samples replicate
 ```
 ##Comparisons combination
 CA20_CA50 <- (CountTable[,c(1,2,3,4)])
@@ -102,4 +104,82 @@ CA20_TE20 <- (CountTable[,c(1,2,13,14)])
 CA20_TE50 <- (CountTable[,c(1,2,15,16)])
 ```
 
+### Designing the experiment
 
+We design each experiment by assigning the replicates condition to untreated and treated.
+
+```
+CA20_CA50_Design = data.frame(row.names = colnames(CA20_CA50 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
+CA20_CE20_Design = data.frame(row.names = colnames(CA20_CE20 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
+CA20_CE50_Design = data.frame(row.names = colnames(CA20_CE50 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
+CA20_TA20_Design = data.frame(row.names = colnames(CA20_TA20 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
+CA20_TA50_Design = data.frame(row.names = colnames(CA20_TA50 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
+CA20_TE20_Design = data.frame(row.names = colnames(CA20_TE20 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
+CA20_TE50_Design = data.frame(row.names = colnames(CA20_TE50 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
+```
+
+
+### Reading each experiment reads by DEseq2
+
+Reading each experiment for camparion in the form of dataframe through DEseq2 package:
+
+```
+library(DESeq2)
+
+CA20_CA50_dds <- DESeqDataSetFromMatrix(countData = CA20_CA50,colData=CA20_CA50_Design, design= ~ condition)
+CA20_CE20_dds <- DESeqDataSetFromMatrix(countData = CA20_CE20,colData=CA20_CE20_Design, design= ~ condition)
+CA20_CE50_dds <- DESeqDataSetFromMatrix(countData = CA20_CE50,colData=CA20_CE50_Design, design= ~ condition)
+CA20_TA20_dds <- DESeqDataSetFromMatrix(countData = CA20_TA20,colData=CA20_TA20_Design, design= ~ condition)
+CA20_TA50_dds <- DESeqDataSetFromMatrix(countData = CA20_TA50,colData=CA20_TA50_Design, design= ~ condition)
+CA20_TE20_dds <- DESeqDataSetFromMatrix(countData = CA20_TE20,colData=CA20_TE20_Design, design= ~ condition)
+CA20_TE50_dds <- DESeqDataSetFromMatrix(countData = CA20_TE50,colData=CA20_TE50_Design, design= ~ condition)
+
+## setting refence Level
+dds$condition <- relevel(dds$condition, ref="untreated")
+```
+
+DEseq2 uses [median of ratios](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2010-11-10-r106) normalization method which means counts divided by sample-specific size factors determined by median ratio of gene counts relative to geometric mean per gene. If you want get this value for each gene then use the following command: 
+```
+CA20_CA50_dds_factor <- estimateSizeFactors(dds)
+CA20_CA50_dds_factor_normalize <- counts(CA20_CA50_dds_factor, normalized=TRUE)
+*similary for other condition comparison*
+```
+
+
+### Run DESeq2 for the comparison
+DRSeq command will compare the difference in gene expression for each gene, and for such comparison it calculates the p-value. It further adjust the p-value and hence also estimate the adjusted p-value (or q-value). It also report baseMean, log2FoldChange, lfcSE (lfc - standard error) and stat.
+
+```
+CA20_CA50_res <- results(DESeq(CA20_CA50_dds))
+CA20_CE20_res <- results(DESeq(CA20_CE20_dds))
+CA20_CE50_res <- results(DESeq(CA20_CE50_dds))
+CA20_TA20_res <- results(DESeq(CA20_TA20_dds))
+CA20_TA50_res <- results(DESeq(CA20_TA50_dds))
+CA20_TE20_res <- results(DESeq(CA20_TE20_dds))
+CA20_TE50_res <- results(DESeq(CA20_TE50_dds))
+```
+
+Shrinkage of effect size (LFC estimates) is useful for visualization and ranking of genes. To shrink the LFC, we pass the dds object to the function lfcShrink. Below we specify to use the apeglm method for effect size shrinkage [(Zhu, Ibrahim, and Love 2018)](https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/bty895), which improves on the previous estimator.
+
+We provide the dds object and the name or number of the coefficient we want to shrink, where the number refers to the order of the coefficient as it appears in resultsNames(dds).
+
+
+```
+CA20_CA50_res_LFC <- lfcShrink(DESeq(CA20_CA50_dds),coef=2, type="apeglm")
+CA20_CE20_res_LFC <- lfcShrink(DESeq(CA20_CE20_dds),coef=2, type="apeglm")
+CA20_CE50_res_LFC <- lfcShrink(DESeq(CA20_CE50_dds),coef=2, type="apeglm")
+CA20_TA20_res_LFC <- lfcShrink(DESeq(CA20_TA20_dds),coef=2, type="apeglm")
+CA20_TA50_res_LFC <- lfcShrink(DESeq(CA20_TA50_dds),coef=2, type="apeglm")
+CA20_TE20_res_LFC <- lfcShrink(DESeq(CA20_TE20_dds),coef=2, type="apeglm")
+CA20_TE50_res_LFC <- lfcShrink(DESeq(CA20_TE50_dds),coef=2, type="apeglm")
+```
+
+For exporting the final processed file into text file:
+```
+write.csv(as.data.frame(CA20_CA50_res_LFC), 
+          file="CA20_CA50_results.csv")
+
+*similary for other condition comparison*      
+```         
+
+Much more detail explanation please refer to [DESeq2 tutorial](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#)
