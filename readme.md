@@ -32,17 +32,33 @@ we can filter reads for more the 25 Phread score by following command:
 fastq_quality_filter -q 25 -p 75 -i Input.fastq -o Input_filtered.fastq
 ```
 
+Note: Change the command parameters according to desired output.
+
 ## Aligning reads to a reference
-After quality  reads must first be aligned to a reference genome or transcriptome. It is important to know if the sequencing experiment was single-end or paired-end, as the alignment software will require the user to specify both FASTQ files for a paired-end experiment. The output of this alignment step is commonly stored in a file format called BAM.
+After quality control reads were align to a reference genome. Here reference genome was [TAIR10](https://www.arabidopsis.org/download/index-auto.jsp%3Fdir%3D%252Fdownload_files%252FGenes%252FTAIR10_genome_release). It is important to know if the sequencing experiment was single-end or paired-end, as the alignment software will require the user to specify both FASTQ files for a paired-end experiment. In our case we had paired-end fastq files. The output of this alignment step is commonly stored in a file format called BAM.
 
-Here we use the TopHat2 spliced alignment software in combination with the Bowtie index available at the Illumina iGenomes.
+Here we used the TopHat2 alignment software for the alignment of reads on TAIR10 genome with the reference of TAIR10 gff file. GFF/GTF files are annotation files which directs the mapping to the gene location and further helps in estimation of fragment numbers for each gene.
 
-For example, the paired-end RNA-Seq reads for the parathyroidSE package were aligned using TopHat2 with 8 threads, with the call:
+For example, the paired-end RNA-Seq reads for the Rabat-2020 (each replicate) aligned using TopHat2 with 20 threads:
+```
+tophat2 -o Rabat-2020_rep1_tophat_out -p 8 -G path/to/gff/ path/to/genome Rabat-2020_rep1_forward.fastq Rabat-2020_rep1_reverse.fastq
+```
+This command will generate an accepted.bam file inside Rabat-2020_rep1_tophat_out folder. It also have a file align.summary which has the information about the percentage of reads mapped on the reference genome. 
 
- tophat2 -o file_tophat_out -p 8 path/to/genome file_1.fastq file_2.fastq samtools sort -n file_tophat_out/accepted_hits.bam _sorted 
+Bam file is binary file (sam is human readable), which has the information about each read mapped-location on the reference genome. This file can be further used to extract the read counts under each gene for the particular condition. 
 
-The second line sorts the reads by name rather than by genomic position, which is necessary for counting paired-end reads within Bioconductor. This command uses the SAMtools software.
+## Counting reads in genes
+To count how many read map to each gene, we need bam file and transcript annotation. We used htseq-count to get the read counts.
 
-The BAM files for a number of sequencing runs can then be used to generate count matrices, as described in the following section.
+Example:
+```
+htseq-count sam_file gff_file > count_file.txt
+```
+In the above sample command its showing sam file; it can interconvert from sam to bam using samtools. 
 
-Example BAM files
+Read-count can also be estimated through samtools by the following command:
+```
+bedtools multicov -bams file1.BAM file2.BAM file3.BAM -bed <BED/GFF/VCF>
+```
+With bedtools one can use multiple bam files at once and a matrix is generated with corresponding multiple columns.
+
