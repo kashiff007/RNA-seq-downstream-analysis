@@ -1,13 +1,13 @@
-#RNA-Seq differential expression work flow
+# RNA-Seq differential expression work flow
 
-##Introduction
+## Introduction
 
 Here we analyzed RNA-seq reads for estimation of gene expression and differential gene expression.
 esmation and One of the aim of RNAseq data analysis is the detection of differentially expressed genes. The package DESeq2 provides methods to test for differential expression analysis.
 
 This document presents an RNAseq differential expression workflow. We will start from the FASTQ files, align to the reference genome, prepare gene expression values as a count table by counting the sequenced fragments, perform differential gene expression analysis, and visually explore the results.
 
-##Input data
+## Input data
 We will use publicly available data from the article by Felix Haglund et al., J Clin Endocrin Metab 2012. The purpose of the experiment was to investigate the role of the estrogen receptor in parathyroid tumors. The investigators derived primary cultures of parathyroid adenoma cells from 4 patients. These primary cultures were treated with diarylpropionitrile (DPN), an estrogen receptor beta agonist, or with 4-hydroxytamoxifen (OHT). RNA was extracted at 24 hours and 48 hours from cultures under treatment and control.
 
 Part of the data from this experiment is provided in the Bioconductor data package parathyroidSE.
