@@ -138,6 +138,9 @@ CA20_TE50_dds <- DESeqDataSetFromMatrix(countData = CA20_TE50,colData=CA20_TE50_
 dds$condition <- relevel(dds$condition, ref="untreated")
 ```
 
+
+### Saving normalized results before differential gene analysis.
+
 DEseq2 uses [median of ratios](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2010-11-10-r106) normalization method which means counts divided by sample-specific size factors determined by median ratio of gene counts relative to geometric mean per gene. If you want get this value for each gene then use the following command: 
 ```
 CA20_CA50_dds_factor <- estimateSizeFactors(dds)
@@ -174,7 +177,9 @@ CA20_TE20_res_LFC <- lfcShrink(DESeq(CA20_TE20_dds),coef=2, type="apeglm")
 CA20_TE50_res_LFC <- lfcShrink(DESeq(CA20_TE50_dds),coef=2, type="apeglm")
 ```
 
-For exporting the final processed file into text file:
+
+### For exporting the final processed file into text file:
+
 ```
 write.csv(as.data.frame(CA20_CA50_res_LFC), 
           file="CA20_CA50_results.csv")
