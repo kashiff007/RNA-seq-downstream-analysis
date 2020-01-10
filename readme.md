@@ -16,7 +16,7 @@ Example:
 If the average per base read quality is bad at the 3' end.
 
 we can trim 5 bases from 3' end by following command:
-'''unix
+'''python
 fastx_trimmer -f 5 -i Input.fastq -o Input_filtered.fastq
 '''
 
