@@ -187,4 +187,4 @@ write.csv(as.data.frame(CA20_CA50_res_LFC),
 *similary for other condition comparison*      
 ```         
 
-Much more detail explanation please refer to [DESeq2 tutorial](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#)
+For much more detail explanation about DESeq2 package please refer to [DESeq2 tutorial](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#)
