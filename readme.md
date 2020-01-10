@@ -62,7 +62,7 @@ bedtools multicov -bams file1.BAM file2.BAM file3.BAM -bed <BED/GFF/VCF>
 ```
 With bedtools one can use multiple bam files at once and a matrix is generated with corresponding multiple columns.
 
-The final count matrix looks like following:
+The final count matrix looks like following (example):
 
 | Scaffold  | start  | stop   | geneID    |strand| Rabat-2020_rep1 | Rabat-2020_rep2 | Rabat-2050_rep1 | Rabat-2050_rep2 |
 | --------- |:------:|:------:|:---------:|:----:|:---------------:|:---------------:|:---------------:|:---------------:|
@@ -70,5 +70,15 @@ The final count matrix looks like following:
 | Chr1      | 453533 | 458347 | AT1G03243 |   -  |        2        |       11        |       2234      |      2455       |
 | Chr1      | 767688 | 768898 | AT1G34510 |   +  |       4343      |      5454       |       45        |      55         |
 
+Here, numeric value below each sample are read-count for corresponding genes.
+
+## Reading the matrix file in R
+Above read table were uploaded into R and select the matrix only for read-number (cloumn starting from 6 to last)
+
+```
+## Load read counts with replicates
+CountTable <- as.data.frame(round(as.matrix(read.csv("replicate.read_counts", sep="\t", header=TRUE, row.names=4))))
+CountTable <- CountTable[:c(6:)]
+```
 
 
