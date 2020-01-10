@@ -16,9 +16,9 @@ Example:
 If the average per base read quality is bad at the 3' end.
 
 we can trim 5 bases from 3' end by following command:
-'''python
+```
 fastx_trimmer -f 5 -i Input.fastq -o Input_filtered.fastq
-'''
+```
 
 ## Aligning reads to a reference
 These reads must first be aligned to a reference genome or transcriptome. It is important to know if the sequencing experiment was single-end or paired-end, as the alignment software will require the user to specify both FASTQ files for a paired-end experiment. The output of this alignment step is commonly stored in a file format called BAM.
