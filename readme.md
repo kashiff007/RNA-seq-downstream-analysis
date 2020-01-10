@@ -15,15 +15,25 @@ What we get from the sequencing machine is a set of FASTQ files that contain the
 Example:
 If the average per base read quality is bad at the 3' end.
 
-![untitled presentation](https://github.com/kashiff007/RNA-seq-downstream-analysis/blob/master/fastqc_sample1.png)
+![untitled presentation](https://www.researchgate.net/profile/Richard_Tennant/publication/312355161/figure/fig2/AS:450870568591361@1484507328098/Sequence-Quality-Per-base-Before-and-After-Trimming-and-Adapter-Removal-The-per-base.png)
 
 we can trim 5 bases from 3' end by following command:
 ```
-fastx_trimmer -f 5 -i Input.fastq -o Input_filtered.fastq
+fastx_trimmer -f [read-size - 5] -i Input.fastq -o Input_filtered.fastq
+```
+
+Example:
+If the average per base read quality is bad throughout the read.
+
+![untitled presentation](https://dwheelerau.files.wordpress.com/2013/03/fastqc_stats.png)
+
+we can filter reads for more the 25 Phread score by following command:
+```
+fastq_quality_filter -q 25 -p 75 -i Input.fastq -o Input_filtered.fastq
 ```
 
 ## Aligning reads to a reference
-These reads must first be aligned to a reference genome or transcriptome. It is important to know if the sequencing experiment was single-end or paired-end, as the alignment software will require the user to specify both FASTQ files for a paired-end experiment. The output of this alignment step is commonly stored in a file format called BAM.
+After quality  reads must first be aligned to a reference genome or transcriptome. It is important to know if the sequencing experiment was single-end or paired-end, as the alignment software will require the user to specify both FASTQ files for a paired-end experiment. The output of this alignment step is commonly stored in a file format called BAM.
 
 Here we use the TopHat2 spliced alignment software in combination with the Bowtie index available at the Illumina iGenomes.
 
