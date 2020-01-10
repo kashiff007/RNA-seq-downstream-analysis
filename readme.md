@@ -62,3 +62,10 @@ bedtools multicov -bams file1.BAM file2.BAM file3.BAM -bed <BED/GFF/VCF>
 ```
 With bedtools one can use multiple bam files at once and a matrix is generated with corresponding multiple columns.
 
+The final count matrix looks like following:
+| Scaffold  | start  | stop  | geneID    |strand| Rabat-2020_rep1 | Rabat-2020_rep2 | Rabat-2050_rep1 | Rabat-2050_rep2 |
+| --------- |:------:|:-----:|:---------:|:----:|:---------------:|:---------------:|:---------------:| ---------------:|
+| Chr1      | 23573  | 25552 | AT1G01060 | +    | 234             | 343             | 8778            | 7667            |
+| Chr1      | 453533 | 458347| AT1G03243 | -    | 2               | 11              | 2234            | 2455            |
+| Chr1      | 767688 | 768898| AT1G34510 | +    | 4343            | 5454            | 45              | 55              |
+
