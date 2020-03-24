@@ -188,3 +188,37 @@ write.csv(as.data.frame(CA20_CA50_res_LFC),
 ```         
 
 For much more detail explanation about DESeq2 package please refer to [DESeq2 tutorial](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#)
+
+
+# edgeR workflow:
+```
+library(edgeR)
+known <- read.table("known_miRNA.txt", sep="\t",header=T)
+new <- read.table("new_miRNA.txt", sep="\t",header=T)
+
+count_known_H <- known[,c(5,6,8,9)]
+count_known_P <- known[,c(11,12,14,15)]
+count_new_H <- new[,c(5,6,8,9)]
+count_new_P <- new[,c(11,12,14,15)]
+
+group <- c(1,1,2,2)
+y_known_H <- DGEList(counts=count_known_H, group=group)
+y_known_P <- DGEList(counts=count_known_P, group=group)
+y_new_H <- DGEList(counts=count_new_H, group=group)
+y_new_P <- DGEList(counts=count_new_P, group=group)
+
+y_known_H <- estimateDisp(y_known_H)
+y_known_H <- estimateTagwiseDisp(y_known_H)
+y_known_P <- estimateDisp(y_known_P)
+y_known_P <- estimateTagwiseDisp(y_known_P)
+y_new_H <- estimateDisp(y_new_H)
+y_new_H <- estimateTagwiseDisp(y_new_H)
+y_new_P <- estimateDisp(y_new_P)
+y_new_P <- estimateTagwiseDisp(y_new_P)
+
+et_y_known_H <- exactTest(y_known_H)
+et_y_known_P <- exactTest(y_known_P)
+et_y_new_H <- exactTest(y_new_H)
+et_y_new_P <- exactTest(y_new_P)
+
+```
