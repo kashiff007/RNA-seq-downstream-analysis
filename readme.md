@@ -66,6 +66,22 @@ bedtools multicov -bams file1.BAM file2.BAM file3.BAM -bed <BED/GFF/VCF>
 ```
 With bedtools one can use multiple bam files at once and a matrix is generated with corresponding multiple columns.
 
+This read counting step required to generate index file of each bam file.
+
+Command for indexing multiple bam files at once:
+```
+ls *rep*/accepted_hits.bam | xargs -n1 -P5 samtools index
+or
+parallel  samtools index ::: *.bam
+
+```
+
+Command for indexing one bam file:
+```
+samtools index accepted_hits.bam
+```
+
+
 
 The final count matrix looks like following (example):
 
