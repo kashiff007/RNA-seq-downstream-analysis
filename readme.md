@@ -192,7 +192,10 @@ CA20_TA50_res_LFC <- lfcShrink(DESeq(CA20_TA50_dds),coef=2, type="apeglm")
 CA20_TE20_res_LFC <- lfcShrink(DESeq(CA20_TE20_dds),coef=2, type="apeglm")
 CA20_TE50_res_LFC <- lfcShrink(DESeq(CA20_TE50_dds),coef=2, type="apeglm")
 ```
-
+### Merge differential analysis with normalyzed gene expression in one table:
+```
+merged_df <- merge(df_res_LFC, df_dds_factor_normalize, by=0, all=TRUE)
+```
 
 ### For exporting the final processed file into text file:
 
