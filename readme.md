@@ -111,13 +111,9 @@ Then we assign each column to each sample:
 
 ```
 ##Comparisons combination
-CA20_CA50 <- (CountTable[,c(1,2,3,4)])
-CA20_CE20 <- (CountTable[,c(1,2,5,6)])
-CA20_CE50 <- (CountTable[,c(1,2,7,8)])
-CA20_TA20 <- (CountTable[,c(1,2,9,10)])
-CA20_TA50 <- (CountTable[,c(1,2,11,12)])
-CA20_TE20 <- (CountTable[,c(1,2,13,14)])
-CA20_TE50 <- (CountTable[,c(1,2,15,16)])
+CA20_CA50 <- as.matrix(round(CountTable[,c(1,2,3,4)]))
+CA20_CE20 <- as.matrix(round(CountTable[,c(1,2,5,6)]))
+
 ```
 
 ### Designing the experiment
@@ -127,11 +123,7 @@ We design each experiment by assigning the replicates condition to untreated and
 ```
 CA20_CA50_Design = data.frame(row.names = colnames(CA20_CA50 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
 CA20_CE20_Design = data.frame(row.names = colnames(CA20_CE20 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
-CA20_CE50_Design = data.frame(row.names = colnames(CA20_CE50 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
-CA20_TA20_Design = data.frame(row.names = colnames(CA20_TA20 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
-CA20_TA50_Design = data.frame(row.names = colnames(CA20_TA50 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
-CA20_TE20_Design = data.frame(row.names = colnames(CA20_TE20 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
-CA20_TE50_Design = data.frame(row.names = colnames(CA20_TE50 ),condition = c( "untreated", "untreated", "treated","treated"), libType = c( "single-end", "single-end", "single-end", "single-end"))
+
 ```
 
 
@@ -144,11 +136,7 @@ library(DESeq2)
 
 CA20_CA50_dds <- DESeqDataSetFromMatrix(countData = CA20_CA50,colData=CA20_CA50_Design, design= ~ condition)
 CA20_CE20_dds <- DESeqDataSetFromMatrix(countData = CA20_CE20,colData=CA20_CE20_Design, design= ~ condition)
-CA20_CE50_dds <- DESeqDataSetFromMatrix(countData = CA20_CE50,colData=CA20_CE50_Design, design= ~ condition)
-CA20_TA20_dds <- DESeqDataSetFromMatrix(countData = CA20_TA20,colData=CA20_TA20_Design, design= ~ condition)
-CA20_TA50_dds <- DESeqDataSetFromMatrix(countData = CA20_TA50,colData=CA20_TA50_Design, design= ~ condition)
-CA20_TE20_dds <- DESeqDataSetFromMatrix(countData = CA20_TE20,colData=CA20_TE20_Design, design= ~ condition)
-CA20_TE50_dds <- DESeqDataSetFromMatrix(countData = CA20_TE50,colData=CA20_TE50_Design, design= ~ condition)
+
 
 ## setting refence Level
 dds$condition <- relevel(dds$condition, ref="untreated")
@@ -163,6 +151,27 @@ CA20_CA50_dds_factor <- estimateSizeFactors(dds)
 CA20_CA50_dds_factor_normalize <- counts(CA20_CA50_dds_factor, normalized=TRUE)
 *similary for other condition comparison*
 ```
+Read the file for gene size:
+```
+bed <- read.table("TAIR10_all.bed", header = FALSE, sep = "\t", row.names = 4)
+bed <- bed %>% mutate(size = V3-V2)
+```
+Merge normalized df with bed file:
+```
+merge(CA20_CA50_dds_factor_normalize, bed, by=0)
+```
+
+Get library size of each column:
+```
+colSum(CA20_CA50)
+```
+
+normalized each col with corresponding lib size and gene length:
+```
+CA20_CA50_dds_factor_normalize <- (data.frame(CA20_CA50_dds_factor_normalize) %>% mutate(CA20_1_norm = CA20_1*1000000000/(32009284*size), CA20_2_norm = CA20_2*1000000000/(33042375*size), CA20_3_norm = CA20_3*1000000000/(26532661*size), CA50_1_norm = CA50_1*1000000000/(29404440*size), CA50_2_norm = CA50_2*1000000000/(35628286*size), CA50_3_norm = CA50_3*1000000000/(32696493*size)))
+```
+
+
 
 
 ### Run DESeq2 for the comparison
@@ -171,11 +180,7 @@ DRSeq command will compare the difference in gene expression for each gene, and 
 ```
 CA20_CA50_res <- results(DESeq(CA20_CA50_dds))
 CA20_CE20_res <- results(DESeq(CA20_CE20_dds))
-CA20_CE50_res <- results(DESeq(CA20_CE50_dds))
-CA20_TA20_res <- results(DESeq(CA20_TA20_dds))
-CA20_TA50_res <- results(DESeq(CA20_TA50_dds))
-CA20_TE20_res <- results(DESeq(CA20_TE20_dds))
-CA20_TE50_res <- results(DESeq(CA20_TE50_dds))
+
 ```
 
 Shrinkage of effect size (LFC estimates) is useful for visualization and ranking of genes. To shrink the LFC, we pass the dds object to the function lfcShrink. Below we specify to use the apeglm method for effect size shrinkage [(Zhu, Ibrahim, and Love 2018)](https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/bty895), which improves on the previous estimator.
@@ -186,11 +191,7 @@ We provide the dds object and the name or number of the coefficient we want to s
 ```
 CA20_CA50_res_LFC <- lfcShrink(DESeq(CA20_CA50_dds),coef=2, type="apeglm")
 CA20_CE20_res_LFC <- lfcShrink(DESeq(CA20_CE20_dds),coef=2, type="apeglm")
-CA20_CE50_res_LFC <- lfcShrink(DESeq(CA20_CE50_dds),coef=2, type="apeglm")
-CA20_TA20_res_LFC <- lfcShrink(DESeq(CA20_TA20_dds),coef=2, type="apeglm")
-CA20_TA50_res_LFC <- lfcShrink(DESeq(CA20_TA50_dds),coef=2, type="apeglm")
-CA20_TE20_res_LFC <- lfcShrink(DESeq(CA20_TE20_dds),coef=2, type="apeglm")
-CA20_TE50_res_LFC <- lfcShrink(DESeq(CA20_TE50_dds),coef=2, type="apeglm")
+
 ```
 ### Merge differential analysis with normalyzed gene expression in one table:
 ```
