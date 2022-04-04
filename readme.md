@@ -102,7 +102,7 @@ Above read table were uploaded into R and select the matrix only for read-number
 ```
 ## Load read counts with replicates
 CountTable <- as.data.frame(round(as.matrix(read.csv("replicate.read_counts", sep="\t", header=TRUE, row.names=4))))
-CountTable <- CountTable[:c(6:)]
+CountTable <- CountTable[,c(4:15)]
 ```
 In the table two replicates of each CA20, CA50, CE20, CE50, TA20, TA50, TE20 and TA50 are present.
 
